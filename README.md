@@ -40,12 +40,12 @@ Happy Voting
 # Results
 
 ## Creating a new poll
-Simple poll for creating polls.
+Simple form for creating polls.
 
 ![Creating a new poll](preview/createpoll.PNG)
 
 ## Admin panel
-* Edit the poll data if it's not yet live.
+* Ability to edit the poll data if it's not yet live.
 * Live voting details once the poll is live.
 
 ![Admin panel](preview/adminview.PNG)
