@@ -1,0 +1,153 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="container" id="poll-update-container">
+
+    </div>
+{% endblock content %}
+{% block JS %}
+    <script src="{{ url_for('static', filename='js/addOptions.js') }}"></script>
+    <script>
+        let $j = jQuery.noConflict();
+        $j.get("{{ url_for('poll.newPoll') }}", data => {
+            let newDom = document.createElement('html');
+            newDom.innerHTML = data;
+            let foreignContainer = newDom.querySelector('#pollContainer');
+            let currentContainer = document.querySelector('#poll-update-container');
+            currentContainer.innerHTML = foreignContainer.innerHTML; // 
+            const adminField = currentContainer.querySelector('#admin-field');
+            adminField.parentNode.removeChild(adminField);
+            const pollView = `${window.origin}/api/1.0/poll/`+ "{{ poll_id }}" + `?token=${cookiesObj.authenticated}`;
+            fetch(pollView).then(response => {
+                if (response.status >= 400){
+                    return response.json().then(respError => {
+                        let error = respError.message;
+                        throw error;
+                    });
+                }
+                return response.json().then(responseBody => {
+                    const pollData = responseBody.poll;
+                    const updateForm = document.forms[0];
+                    const textArea = updateForm.querySelector('textarea');
+                    const options = updateForm.querySelector('#options-container div#options');
+                    const newOptions = options.cloneNode(false);
+                    const optionsRow = document.createElement('div');
+                    const pollStarts = updateForm.querySelector('input#start_date');
+                    const pollEnds = updateForm.querySelector('input#end_date');
+                    const guests = updateForm.querySelector('#guests');
+                    const submitbtn = updateForm.querySelector('input[type=submit]');
+                    textArea.textContent = pollData.title;
+                    pollStarts.setAttribute('value', pollData.formated_dates.starts);
+                    pollEnds.setAttribute('value', pollData.formated_dates.ends);
+                    guests.checked = pollData.settings['guestsAllowed'];
+                    submitbtn.setAttribute('value', 'Update');
+                    optionsRow.className = 'row';
+                    optionsRow.setAttribute('id', 'row');
+                    let option_id = 1;
+                    pollData.options.forEach(option => {
+                        const optionWrapper = document.createElement('div');
+                        optionWrapper.classList.add('col-8', 'mb-2', 'ml-2');
+                        const optionInput = document.createElement('input');
+                        optionInput.setAttribute('id', `option${option_id}`);
+                        optionInput.setAttribute('name', `option${option_id}`);
+                        optionInput.setAttribute('type', 'text');
+                        optionInput.classList.add('form-control', 'form-control-md');
+                        optionInput.setAttribute('value', option);
+                        if (option_id > 2){
+                            const deleteNewOptionCol = document.createElement('div');
+                            const deleteNewOption = document.createElement('button');
+                            deleteNewOption.classList.add('btn', 'btn-danger');
+                            deleteNewOption.textContent = 'X';
+                            deleteNewOption.setAttribute('id', `delete-option-${option_id}`)
+                            deleteNewOption.addEventListener('click', event => {
+                                event.preventDefault();
+                            });
+                            deleteNewOptionCol.classList.add('col-2');
+                            deleteNewOptionCol.setAttribute('id', 'delete-option-btn');
+                            deleteNewOptionCol.appendChild(deleteNewOption);
+                            optionWrapper.appendChild(optionInput);
+                            optionsRow.appendChild(optionWrapper);
+                            optionsRow.appendChild(deleteNewOptionCol);
+                        }
+                        else{
+                            optionWrapper.appendChild(optionInput);
+                            optionsRow.appendChild(optionWrapper);
+                        }
+                        option_id += 1;
+                    });
+                    newOptions.appendChild(optionsRow);
+                    options.innerHTML = newOptions.innerHTML;
+                }).catch(respError => {
+                    console.log(respError);
+                });
+            });
+            addOptions();
+            const updateForm = document.forms[0];
+            const options = updateForm.querySelectorAll('div#options input');
+            setTimeout(() => {
+                const options = updateForm.querySelectorAll('div#options input');
+                if (options.length > 2){
+                    options.forEach(option => {
+                        deletebtn = option.parentNode.nextElementSibling;
+                        if (deletebtn.textContent == 'X'){
+                            deletebtn.addEventListener('click', event => {
+                                event.preventDefault();
+                                option.parentNode.removeChild(option);
+                                event.target.parentNode.parentNode.removeChild(event.target.parentNode);
+                            })
+                        }
+                    })
+                }
+            }, 1000);
+            updateForm.addEventListener('submit', event => {
+                event.preventDefault();
+                const csrf = event.target.querySelector('input#csrf_token').value;
+                const pollTitle = event.target.querySelector('#title');
+                const pollField = event.target.querySelector('fieldset');
+                const optionsFields = pollField.querySelectorAll('div#options input');
+                const startDate = pollField.querySelector('input#start_date');
+                const endDate = pollField.querySelector('input#end_date');
+                const allowGuests = pollField.querySelector('input#guests').checked;
+                let options = []
+                Array.from(optionsFields).forEach(item => {
+                    options.push(item.value);
+                });
+                const postedData = {
+                    title : pollTitle.value,
+                    options : options,
+                    start_date : startDate.value,
+                    end_date : endDate.value,
+                    guestsAllowed : allowGuests
+                }
+                return fetch(`${window.origin}/api/1.0/poll/` + "{{ poll_id }}", {
+                    method: 'PUT',
+                    body: JSON.stringify({ token: cookiesObj.authenticated, ...postedData }),
+                    headers: new Headers({'content-type': 'application/json', 'X-CSRFToken': csrf})
+                }).then(response => {
+                    if (response.status >= 400){
+                        return response.json().then(respError => {
+                            let err = respError;
+                            throw err;
+                        });
+                    }
+                    return response.json().then(respBody => {
+                        window.location.replace(`${window.origin}/` + "{{ poll_id }}/admin");
+                    });
+                }).catch(respError => {
+                    if (respError.status == 'date_error'){
+                        startDate.classList.add('is-invalid');
+                        endDate.classList.add('is-invalid');
+                    }
+                    if (respError.status == 'fields_error'){
+                        respError.fields.forEach(field => {
+                            if (field !== 'options'){
+                                updateForm.querySelector(`#${field}`).classList.add('is-invalid');
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+    
+    
+{% endblock JS %}

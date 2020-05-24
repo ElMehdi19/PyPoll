@@ -1,0 +1,18 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="row">
+        <div class="container">
+            <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12">
+                <div class="card p-2 mt-3" style="text-align: center;">
+                    <h2 class="title">
+                        Creating <span class="text-info">Polls</span> has never been easier.
+                    </h2>
+                    <h4 class="text-muted">Free. Fast. Interactive.</h4>
+                    <img class="rounded-circle" 
+                        src="{{ url_for('static', filename='imgs/ballot.png') }}" title="Image by Tumisu">
+                    <div class="mt-2"><a href="{{ url_for('poll.newPoll') }}" class="btn btn-primary">Create poll</a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

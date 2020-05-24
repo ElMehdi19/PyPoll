@@ -1,0 +1,75 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12">
+                <div class="card p-2" id="poll-data" style="display: none;">
+                    <legend class="border-bottom">Poll information</legend>
+                    <div id="poll-header" class="ml-4 mb-2">
+                        <b>Description:</b>
+                        <p id="description"></p>
+                    </div>
+                    <div id="poll-options" class="ml-4 mb-2">
+                        <b>Options</b>
+                        <ul id="poll-list"></ul>
+                    </div>
+                    <div class="ml-4" id="poll-schedule">
+                        <b>Schedule</b>
+                        <div class="ml-4 mb-2">
+                            <b>Starts:</b>
+                            <p id="poll-start-date"></p>
+                            <b>Ends:</b>
+                            <p id="poll-end-date"></p>
+                        </div>
+                    </div>
+                    <div class="ml-4 mb-2">
+                        <b>Settings</b>
+                        <div class="ml-4 d-block" id="poll-settings">
+                            <div class="d-inline-block mr-4">
+                                <b>Is Live</b>
+                                <p id="poll-isLive"></p>
+                            </div>
+                            <div class="d-inline-block mr-4">
+                                <b>Is Completed</b>
+                                <p id="poll-isCompleted"></p>
+                            </div>
+                            <div class="d-inline-block mr-4">
+                                <b>Guests Allowed</b>
+                                <p id="poll-guestsAllowed"></p>
+                            </div>
+                            <div class="d-inline-block">
+                                <b>Public key</b>
+                                <p id="poll-public-key"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ml-4" id="poll-update-btn">
+                        <a class="btn btn-primary"href="{{ url_for('admin.updatePoll', id=poll_id) }}">Update</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card p-2" id="live-data-wrapper" style="display: none;">
+                    <legend class="border-bottom">So far</legend>
+                    <div id="live-data">
+                        <h4>Number of votes: <b id="number-votes"></b></h4>
+                        <h4>Ballot link: <a id="poll-ballot" ></a></h4>
+                        <h4 id="ballot-public-key" style="display: none;">Public Key: </h4>
+                        <ul>Tips:
+                            <li>Share the ballot link and the key so more people vote.</li>
+                            <li>Logout to vote.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block JS %}
+    <script src="{{ url_for('static', filename='js/getPollData.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', event => {
+                getPollData("{{ poll_id }}");
+        });
+    </script>
+{% endblock JS %}

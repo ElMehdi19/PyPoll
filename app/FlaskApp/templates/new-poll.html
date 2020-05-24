@@ -1,0 +1,118 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="container" id="pollContainer">
+        <div class="row">
+            <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
+                <div class="card">
+                    <div class="pollContainer p-2">
+                        <form action="" method="POST" novalidate>
+                            {{ form.hidden_tag() }}
+                            <fieldset class="form-group border-bottom">
+                                <div class="form-group">
+                                    <legend>Question:</legend>
+                                    {% if form.title.errors %}
+                                        {{ form.title(class="form-control form-control-lg is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.title.errors %}
+                                                <span class="text-danger">{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.title(class="form-control form-control-lg") }}
+                                    {% endif %}
+                                </div>
+                                <div class="form-group" id="options-container">
+                                    <legend>Options</legend>
+                                    <div id="options">
+                                        <div class="row" id="row">
+                                            <div class="col-8 mb-2 ml-2">
+                                                {% if form.option1.errors %}
+                                                    {{ form.option1(class="form-control form-control-md is-invalid") }}
+                                                    <div class="invalid-feedback">
+                                                        {% for error in form.option1.errors %}
+                                                            <span class="text-danger">{{ error }}</span>
+                                                        {% endfor %}
+                                                    </div>
+                                                {% else %}
+                                                    {{ form.option1(class="form-control form-control-md") }}
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-8 mb-2 ml-2">
+                                                {% if form.option2.errors %}
+                                                    {{ form.option2(class="form-control form-control-md is-invalid") }}
+                                                    <div class="invalid-feedback">
+                                                        {% for error in form.option2.errors %}
+                                                            <span class="text-danger">{{ error }}</span>
+                                                        {% endfor %}
+                                                    </div>
+                                                {% else %}
+                                                    {{ form.option2(class="form-control form-control-md") }}
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-primary ml-2" id="add-opt-btn">Add</button>
+                                </div>
+                                <div class="form-group row mt-4">
+                                    <div class="col-lg-5 col-md-5 col-sm-12 col-xs-12">
+                                        {{ form.start_date.label(class="form-control-label") }}
+                                        {% if form.start_date.errors %}
+                                            {{ form.start_date(class="form-control form-control-lg is-invalid") }}
+                                            <div class="invalid-feedback">
+                                                {% for error in form.start_date.errors %}
+                                                    <span class="text-danger">{{ error }}</span>
+                                                {% endfor %}
+                                            </div>
+                                        {% else %}
+                                            {{ form.start_date(class="form-control form-control-lg") }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-lg-5 col-md-5 col-sm-12 col-xs-12">
+                                        {{ form.end_date.label(class="form-control-label") }}
+                                        {% if form.end_date.errors %}
+                                            {{ form.end_date(class="form-control form-control-lg is-invalid") }}
+                                            <div class="invalid-feedback">
+                                                {% for error in form.end_date.errors %}
+                                                    <span class="text-danger">{{ error }}</span>
+                                                {% endfor %}
+                                            </div>
+                                        {% else %}
+                                            {{ form.end_date(class="form-control form-control-lg") }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="form-check">
+                                    {{ form.guests(class='form-check-input') }}
+                                    {{ form.guests.label(class='form-check') }}
+                                </div>
+                            </fieldset>
+                            <fieldset class="form-group border-bottom" id="admin-field">
+                                <legend>Moderator info</legend>
+                                <div class="form-group">
+                                    {% if form.email.errors %}
+                                        {{ form.email(class="form-control form-control-lg is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.email.errors %}
+                                                <span class="text-danger">{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.email(class="form-control form-control-lg") }}
+                                    {% endif %}
+                                </div>
+                            </fieldset>
+                            <div class="form-group">
+                                {{ form.submit(class="btn btn-outline-primary float-right") }}
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block JS %}
+    <script src="{{ url_for('static', filename='js/addOptions.js') }}"></script>
+    <script>addOptions();</script>
+{% endblock JS %}

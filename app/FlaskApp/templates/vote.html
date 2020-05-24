@@ -1,0 +1,102 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="container" id="pollContainer">
+        <div class="row">
+            <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
+                <div class="card p-2" style="display: none;" id="voting-ballot">
+                    {% if is_live %}
+                        {% if guests == True %}
+                        <legend class="border-bottom">Poll #{{ poll_id }}: Vote</legend>
+                        <h4><b id="poll-vote-title"></b></h4>
+                        <form class="p-3" novalidate>
+                            <input type="hidden" id="vote-csrf" value="{{ csrf_token() }}">
+                        </form>
+                        {% else %}
+                        <legend class="border-bottom" id="poll-vote-title">Poll #{{ poll_id }}: Login to vote</legend>
+                        <h4><b id="poll-vote-title" style="display: none;"></b></h4>
+                        <form class="form-inline" id="public-form" novalidate>
+                            <input type="hidden" id="vote-csrf" value="{{ csrf_token() }}">
+                            <div class="input-group">
+                                <label for="public-token" class="mr-2">Public Token: </label>
+                                <input class="form-control mr-2" id="public-token">
+                            </div>
+                            <div class="input-group">
+                                <button class="btn btn-outline-primary float-right">Login</button>
+                            </div>
+                        </form>
+                        {% endif %}
+                    {% else %}
+                        {% if is_done %}
+                            <legend class="border-bottom">Poll #{{ poll_id }}: Results</legend>
+                            <canvas id="pollChart"></canvas>
+                        {% else %}
+                            <legend class="border-bottom">Poll #{{ poll_id }}: Vote</legend>
+                            <h3><b id="poll-not-live">This poll isn't live yet!</b></h3>
+                            <h4>Visit this page on <b>{{ start.strftime('%b %d, %Y %H:%M') }}</b> to vote.</h4>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col">
+                <div class="card p-2" id="poll-tools">
+                    {% if not is_done %}
+                    <legend class="border-bottom">Admin</legend>
+                    <form id="adminForm">
+                        <input type="hidden" id="admin-csrf" value="{{ csrf_token() }}">
+                        <div class="form-group">
+                            <input class="form-control form-control-lg" id="admin-token" placeholder="Token">
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-outline-primary float-right">Login</button>
+                        </div>
+                    </form>
+                    {% else %}
+                    <legend class="border-bottom">Results tools</legend>
+                    <div class="d-block">
+                        <b>Total votes: </b><span id="number-votes"></span>
+                    </div>
+                    <div class="d-block">
+                        <b>Download results in csv: </b><button class="btn btn-success" id="csv">CSV</button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block JS %}
+    {% if not is_done %}
+    <script src="{{ url_for('static', filename='js/adminLogin.js') }}"></script>
+    <script>
+        logAdmin("{{ poll_id }}");
+    </script>
+    {% endif %}
+    {% if is_live %}
+        {% if guests %}
+        <script src="{{ url_for('static', filename='js/sendVote.js') }}"></script>
+        {% else %}
+        <script src="{{ url_for('static', filename='js/handlePrivateVote.js') }}"></script>
+        {% endif %}
+        <script>
+            document.addEventListener('DOMContentLoaded', event => {
+                    "{% if guests %}"
+                    sendVote("{{ poll_id }}");
+                    "{% else %}"
+                    handlePrivateVote("{{ poll_id }}", "{{ csrf_token() }}");
+                    "{% endif %}"
+                });
+        </script>
+    {% else %}
+        <script>
+            const notLive = document.querySelector('#voting-ballot');
+            notLive.style.display = 'block';
+        </script>
+        {% if is_done %}
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+            <script src="{{ url_for('static', filename='js/getResults.js') }}"></script>
+            <script>
+                getResults("{{ poll_id }}");
+            </script>
+        {% endif %}
+    {% endif %}
+{% endblock JS %}
