@@ -33,6 +33,8 @@ Set the following virtual environment variables:
 `MAIL_USER`
 `MAIL_PWD`
 
+NOTE: This app uses GMAIL SMTP to send emails, you can change it in the `config.py` file
+
 Run this command to start the app:
 
 `cd app`
