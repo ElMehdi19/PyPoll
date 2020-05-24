@@ -27,6 +27,12 @@ Install the dependencies by simply executing:
 
 `pip3 install -r requirements.txt`
 
+Set the following virtual environment variables:
+`SECRET_KEY`
+`DATABASE_URI`
+`MAIL_USER`
+`MAIL_PWD`
+
 Run this command to start the app:
 
 `cd app`
