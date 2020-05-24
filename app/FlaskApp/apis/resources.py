@@ -217,21 +217,7 @@ class VoteResultsAPI(Resource): # http://127.0.0.1:5000/api/1.0/results/{id}
         result = [f'{num}_' for num in result]
         result = int(''.join(result).strip('_'))
         return f'{result:,}'
-
-class Root(Resource): # http://127.0.0.1:5000/api/1.0/root
-    def __init__(self):
-        self.reqparse = reqparse.RequestParser()
-        self.reqparse.add_argument('id', type=int, location='json')
-    def get(self):
-        args = request.args
-        poll = Poll.query.get(args['id'])
-        if not poll:
-            return make_response({'status':'error', 'message':'poll doesn\'t exist'}, 404)
-        poll_obj = poll.__dict__
-        del poll_obj['_sa_instance_state']
-        return make_response({'poll': poll_obj}, 200)
-
+    
 api.add_resource(PollAPI, '/api/1.0/poll/<int:id>', endpoint='poll')
 api.add_resource(VoteAPI, '/api/1.0/vote/<int:id>', endpoint='vote')
 api.add_resource(VoteResultsAPI, '/api/1.0/results/<int:id>', endpoint='results')
-api.add_resource(Root, '/api/1.0/root', endpoint='rootapi')
